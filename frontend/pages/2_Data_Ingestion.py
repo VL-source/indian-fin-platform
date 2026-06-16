@@ -68,7 +68,15 @@ if not job_id:
         st.write("Click **Start Ingestion** to begin fetching data from providers.")
     with col_b:
         if st.button("🚀 Start Ingestion", type="primary", use_container_width=True):
-            tickers = [c["ticker"] for c in companies]
+            tickers = [c["ticker"] for c in companies if c.get("ticker")]
+            if len(tickers) < len(companies):
+                st.warning(
+                    f"Skipping {len(companies) - len(tickers)} company(ies) with no usable "
+                    "ticker/code — remove and re-add them from Company Selection."
+                )
+            if not tickers:
+                st.error("No companies with a usable ticker to ingest.")
+                st.stop()
             try:
                 resp = httpx.post(
                     f"{BACKEND}/api/v1/jobs/ingest/tickers",
