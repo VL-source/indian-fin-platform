@@ -93,16 +93,39 @@ class ScreenerProvider(BaseProvider):
 
         results = []
         for item in data:
+            # Screener's search JSON doesn't reliably include a "symbol" key —
+            # fall back to the slug embedded in the company's "url" field so we
+            # never emit a result with no usable identifier (which previously
+            # produced companies with a blank ticker that silently failed to
+            # ingest downstream).
+            slug = item.get("symbol") or self._slug_from_url(item.get("url", ""))
+            if not slug:
+                self._log.warning("screener_search_no_identifier", item=item)
+                continue
+            is_bse_code = slug.isdigit()
             results.append(
                 CompanySearchResult(
-                    ticker=item.get("symbol", ""),
+                    ticker=slug,
                     name=item.get("name", ""),
-                    exchange="NSE" if item.get("symbol") else "BSE",
-                    nse_ticker=item.get("symbol"),
+                    exchange="BSE" if is_bse_code else "NSE",
+                    nse_ticker=None if is_bse_code else slug,
+                    bse_code=slug if is_bse_code else None,
                     isin=item.get("isin"),
                 )
             )
         return results
+
+    @staticmethod
+    def _slug_from_url(url: str) -> str:
+        """Extract the Screener company slug (NSE symbol or BSE code) from a URL like '/company/HDFCBANK/consolidated/'."""
+        if not url:
+            return ""
+        parts = [p for p in url.strip("/").split("/") if p]
+        if "company" in parts:
+            idx = parts.index("company")
+            if idx + 1 < len(parts):
+                return parts[idx + 1]
+        return parts[-1] if parts else ""
 
     async def get_top_companies_by_sector(
         self, sector: str, limit: int = 100
@@ -168,9 +191,9 @@ class ScreenerProvider(BaseProvider):
         """Get the Screener URL slug for a ticker."""
         results = await self.search_company(ticker)
         for r in results:
-            if r.nse_ticker and r.nse_ticker.upper() == ticker.upper():
-                # Screener slug = ticker in many cases
-                return ticker.upper()
+            if (r.nse_ticker and r.nse_ticker.upper() == ticker.upper()) or \
+               (r.bse_code and r.bse_code == ticker):
+                return r.ticker
         # Fallback: try direct URL
         test_url = f"{SCREENER_BASE}/company/{ticker.upper()}/consolidated/"
         try:
