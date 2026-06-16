@@ -64,11 +64,15 @@ def get_sector_companies(sector: str, limit: int = 100) -> List[dict]:
         return []
 
 
-def add_company(company: dict) -> None:
-    """Add a company to the session state selected list."""
+def add_company(company: dict) -> bool:
+    """Add a company to the session state selected list. Returns False if rejected."""
+    if not company.get("ticker"):
+        # No usable identifier (NSE symbol/BSE code) — would silently fail ingestion later.
+        return False
     existing_tickers = {c["ticker"] for c in st.session_state.selected_companies}
     if company["ticker"] not in existing_tickers:
         st.session_state.selected_companies.append(company)
+    return True
 
 
 def remove_company(ticker: str) -> None:
@@ -115,8 +119,10 @@ if method == "🔍 Search by Name/Ticker":
                     f"₹{r['market_cap_inr_cr']:,.0f} Cr" if r.get("market_cap_inr_cr") else "—"
                 )
                 if cols[4].button("Add ➕", key=f"add_{i}_{r['ticker']}_{r.get('exchange', 'NSE')}"):
-                    add_company(r)
-                    st.rerun()
+                    if add_company(r):
+                        st.rerun()
+                    else:
+                        st.error("Can't add this company — no usable ticker/code returned by the data provider.")
         else:
             st.warning("No companies found. Try a different name or ticker.")
 
@@ -194,15 +200,21 @@ elif method == "🏭 Browse by Sector":
 
             if st.button("Add Selected to Peer Group"):
                 added = 0
+                skipped = 0
                 for i in selected_indices:
                     row = df.iloc[i]
-                    add_company({
+                    ok = add_company({
                         "ticker": row["ticker"],
                         "name": row.get("name", row["ticker"]),
                         "exchange": row.get("exchange", "NSE"),
                         "market_cap_inr_cr": row.get("market_cap_inr_cr"),
                     })
-                    added += 1
+                    if ok:
+                        added += 1
+                    else:
+                        skipped += 1
+                if skipped:
+                    st.warning(f"Skipped {skipped} companies with no usable ticker/code.")
                 st.success(f"Added {added} companies to peer group")
                 st.rerun()
         else:
