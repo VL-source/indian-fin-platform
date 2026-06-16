@@ -15,7 +15,8 @@ import streamlit as st
 
 st.set_page_config(page_title="Common-Size Analysis", page_icon="📐", layout="wide")
 
-BACKEND = st.session_state.get("backend_url", "http://localhost:8000")
+import os
+BACKEND = st.session_state.get("backend_url") or os.getenv("BACKEND_URL", "http://localhost:8000")
 
 st.title("📐 Common-Size Analysis")
 st.caption("All line items as % of Revenue (Revenue = 100%)")

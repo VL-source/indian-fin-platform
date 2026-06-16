@@ -14,7 +14,8 @@ import streamlit as st
 
 st.set_page_config(page_title="Peer Benchmarks", page_icon="🔬", layout="wide")
 
-BACKEND = st.session_state.get("backend_url", "http://localhost:8000")
+import os
+BACKEND = st.session_state.get("backend_url") or os.getenv("BACKEND_URL", "http://localhost:8000")
 
 st.title("🔬 Peer Group Benchmarks")
 st.caption("Side-by-side comparison of all companies in the peer group")

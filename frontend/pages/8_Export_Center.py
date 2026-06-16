@@ -9,7 +9,8 @@ import streamlit as st
 
 st.set_page_config(page_title="Export Center", page_icon="📥", layout="wide")
 
-BACKEND = st.session_state.get("backend_url", "http://localhost:8000")
+import os
+BACKEND = st.session_state.get("backend_url") or os.getenv("BACKEND_URL", "http://localhost:8000")
 
 st.title("📥 Export Center")
 st.caption("Download financial data in Excel, CSV, or PDF format.")

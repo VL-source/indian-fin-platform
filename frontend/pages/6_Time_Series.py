@@ -15,7 +15,8 @@ import streamlit as st
 
 st.set_page_config(page_title="Time-Series Analysis", page_icon="📈", layout="wide")
 
-BACKEND = st.session_state.get("backend_url", "http://localhost:8000")
+import os
+BACKEND = st.session_state.get("backend_url") or os.getenv("BACKEND_URL", "http://localhost:8000")
 
 st.title("📈 Time-Series Analysis")
 st.caption("10-year trends, CAGR, YoY growth, rolling averages, and volatility analysis")
