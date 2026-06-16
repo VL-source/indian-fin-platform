@@ -100,7 +100,7 @@ async def search_companies_external(
     await provider.close()
     return [
         SectorSearchResult(
-            ticker=r.nse_ticker or r.ticker,
+            ticker=r.nse_ticker or r.bse_code or r.ticker,
             name=r.name,
             exchange=r.exchange,
             sector=r.sector,
@@ -108,6 +108,7 @@ async def search_companies_external(
             isin=r.isin,
         )
         for r in results
+        if (r.nse_ticker or r.bse_code or r.ticker)  # never return an entry with no usable identifier
     ]
 
 
@@ -125,7 +126,7 @@ async def get_top_by_sector(
     await provider.close()
     return [
         SectorSearchResult(
-            ticker=r.nse_ticker or r.ticker,
+            ticker=r.nse_ticker or r.bse_code or r.ticker,
             name=r.name,
             exchange=r.exchange,
             sector=r.sector,
@@ -133,6 +134,7 @@ async def get_top_by_sector(
             isin=r.isin,
         )
         for r in results
+        if (r.nse_ticker or r.bse_code or r.ticker)
     ]
 
 
