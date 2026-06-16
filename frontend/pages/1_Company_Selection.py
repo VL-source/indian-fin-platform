@@ -100,7 +100,7 @@ if method == "🔍 Search by Name/Ticker":
 
         if results:
             st.write(f"Found **{len(results)}** companies")
-            for r in results[:10]:
+            for i, r in enumerate(results[:10]):
                 cols = st.columns([3, 1, 1, 1, 1])
                 cols[0].write(f"**{r['name']}**")
                 cols[1].write(r["ticker"])
@@ -108,7 +108,7 @@ if method == "🔍 Search by Name/Ticker":
                 cols[3].write(
                     f"₹{r['market_cap_inr_cr']:,.0f} Cr" if r.get("market_cap_inr_cr") else "—"
                 )
-                if cols[4].button("Add ➕", key=f"add_{r['ticker']}"):
+                if cols[4].button("Add ➕", key=f"add_{i}_{r['ticker']}_{r.get('exchange', 'NSE')}"):
                     add_company(r)
                     st.rerun()
         else:
