@@ -1,0 +1,37 @@
+# Render Blueprint for the FastAPI backend.
+# Deploy: Render dashboard -> New -> Blueprint -> select this repo.
+# The Postgres database itself is NOT defined here — it lives on Neon
+# (free, permanent tier). Set DATABASE_URL manually after creating it.
+services:
+  - type: web
+    name: indian-fin-backend
+    runtime: docker
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        sync: false        # paste the Neon connection string (asyncpg driver) in Render dashboard
+      - key: SECRET_KEY
+        generateValue: true
+      - key: FMP_API_KEY
+        sync: false
+      - key: ALPHA_VANTAGE_API_KEY
+        sync: false
+      - key: NSE_USER_AGENT
+        value: "Mozilla/5.0 (compatible; IndianFinPlatform/1.0)"
+      - key: LOG_LEVEL
+        value: INFO
+      - key: MAX_COMPANIES_PER_REQUEST
+        value: "100"
+      - key: MAX_YEARS
+        value: "10"
+      - key: ETL_CONCURRENCY
+        value: "4"
+      - key: SCREENER_RATE_LIMIT_RPS
+        value: "2"
+      - key: NSE_RATE_LIMIT_RPS
+        value: "3"
+      - key: BSE_RATE_LIMIT_RPS
+        value: "3"

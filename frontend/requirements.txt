@@ -1,0 +1,13 @@
+streamlit==1.35.0
+plotly==5.22.0
+pandas==2.2.2
+numpy==1.26.4
+httpx==0.27.0
+openpyxl==3.1.2
+xlsxwriter==3.2.0
+reportlab==4.2.0
+python-dotenv==1.0.1
+requests==2.31.0
+streamlit-aggrid==1.0.5
+streamlit-option-menu==0.3.12
+streamlit-extras==0.4.3

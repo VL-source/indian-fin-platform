@@ -1,0 +1,25 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# env / secrets
+.env
+.env.local
+
+# celery leftovers (removed from stack, but ignore if regenerated locally)
+celerybeat-schedule
+celerybeat-schedule.*
+
+# docker / db volumes
+postgres_data/
+
+# editors / OS
+.DS_Store
+.vscode/
+.idea/
+
+# streamlit
+.streamlit/secrets.toml
