@@ -17,6 +17,11 @@ st.set_page_config(page_title="Company Selection", page_icon="🏢", layout="wid
 
 BACKEND = st.session_state.get("backend_url", "http://localhost:8000")
 
+if "selected_companies" not in st.session_state:
+    st.session_state.selected_companies = []
+if "selected_years" not in st.session_state:
+    st.session_state.selected_years = list(range(2015, 2025))
+
 SECTORS = [
     "IT Services", "Banking", "NBFC", "Insurance", "FMCG", "Pharmaceuticals",
     "Chemicals", "Auto Components", "Automobile", "Cement", "Steel",
